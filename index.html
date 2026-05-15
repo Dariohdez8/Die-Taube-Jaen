@@ -27,7 +27,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999; /* Siempre por encima de todo */
+            z-index: 9999;
             transition: opacity 0.8s ease, visibility 0.8s;
         }
 
@@ -87,19 +87,20 @@
             overflow: hidden;
         }
 
+        /* FONDO DINÁMICO REFORZADO */
         .hero-bg-text {
             position: absolute;
             font-family: 'Playfair Display', serif;
             font-size: 10vw; 
-            color: rgba(0, 0, 0, 0.08); 
-            filter: blur(4px); 
+            color: rgba(0, 0, 0, 0.15); /* Subida la opacidad de 0.08 a 0.15 */
+            filter: blur(3px); /* Reducido un poco el blur para que se lea mejor */
             white-space: nowrap;
             z-index: 1;
             font-weight: 700;
         }
 
         .text-1 { top: 15%; animation: moveRight 35s linear infinite; }
-        .text-2 { bottom: 15%; animation: moveLeft 40s linear infinite; color: rgba(211, 47, 47, 0.06); }
+        .text-2 { bottom: 15%; animation: moveLeft 40s linear infinite; color: rgba(211, 47, 47, 0.12); }
 
         @keyframes moveRight { 0% { transform: translateX(-50%); } 100% { transform: translateX(50%); } }
         @keyframes moveLeft { 0% { transform: translateX(50%); } 100% { transform: translateX(-50%); } }
@@ -190,6 +191,8 @@
             background: white; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; font-size: 0.9rem; border-left: 4px solid var(--amarillo);
         }
 
+        .cat-titulo { width: 100%; font-family: 'Playfair Display', serif; color: var(--rojo); border-bottom: 1px solid var(--amarillo); margin: 25px 0 10px; font-size: 1.4rem; }
+
         .alergenos-box {
             max-width: 900px;
             margin: 40px auto;
@@ -269,6 +272,11 @@
             <img src="https://images.unsplash.com/photo-1509722747041-619f382b73b5?auto=format&fit=crop&w=500">
             <div class="bloque-info"><h3>Bocadillos</h3><small>Clásicos y especiales</small></div>
         </button>
+
+        <button class="bloque-apartado" onclick="abrir('bebidas')">
+            <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=500">
+            <div class="bloque-info"><h3>Bebidas y Copas</h3><small>Refrescos, Vinos y Copas</small></div>
+        </button>
     </div>
 
     <div id="fotos" class="menu-desplegable">
@@ -278,8 +286,6 @@
             <img src="https://images.unsplash.com/photo-1534422298391-e4f8c170db06?auto=format&fit=crop&w=400">
             <img src="https://images.unsplash.com/photo-1509722747041-619f382b73b5?auto=format&fit=crop&w=400">
             <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=400">
-            <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=400">
-            <img src="https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?auto=format&fit=crop&w=400">
         </div>
     </div>
 
@@ -293,6 +299,7 @@
             <div class="item-carta"><span>Rollo de Primavera</span><b>FREE</b></div>
             <div class="item-carta"><span>Boquerón Frito</span><b>FREE</b></div>
             <div class="item-carta"><span>Rejos Fritos</span><b>FREE</b></div>
+            <div class="item-carta"><span>Langostino Cocido</span><b>FREE</b></div>
             <div class="item-carta"><span>Arroz Tres Delicias</span><b>FREE</b></div>
             <div class="item-carta"><span>Palomitas de Pollo</span><b>FREE</b></div>
             <div class="item-carta"><span>Patata Rellena</span><b>FREE</b></div>
@@ -344,6 +351,21 @@
         </div>
     </div>
 
+    <div id="bebidas" class="menu-desplegable">
+        <div class="cat-titulo">Refrescos y Cervezas</div>
+        <div class="grid-items">
+            <div class="item-carta"><span>Refrescos Variados</span><b>2,20€</b></div>
+            <div class="item-carta"><span>Caña / Tubo de Cerveza</span><b>2,00€ / 2,50€</b></div>
+            <div class="item-carta"><span>Tercio Especial</span><b>3,00€</b></div>
+        </div>
+        <div class="cat-titulo">Vinos y Copas</div>
+        <div class="grid-items">
+            <div class="item-carta"><span>Copa de Vino (Tinto/Blanco)</span><b>2,50€</b></div>
+            <div class="item-carta"><span>Copa Combinada Nacional</span><b>6,00€</b></div>
+            <div class="item-carta"><span>Copa Importación</span><b>8,00€</b></div>
+        </div>
+    </div>
+
     <div class="alergenos-box">
         <i class="fas fa-info-circle"></i> <strong>Información sobre Alérgenos:</strong> En cumplimiento del Reglamento (UE) Nº 1169/2011, disponemos de la información relativa a los alérgenos de nuestros platos. Por favor, consulte a nuestro personal si tiene alguna intolerancia.
     </div>
@@ -364,10 +386,8 @@
     </footer>
 
     <script>
-        // Esta función quita el cargador cuando la página ha cargado todo (imágenes, fuentes, etc.)
         window.addEventListener('load', function() {
             const loader = document.getElementById('loader');
-            // Le damos 1 segundo de margen para que se vea el efecto
             setTimeout(() => {
                 loader.style.opacity = '0';
                 setTimeout(() => {
