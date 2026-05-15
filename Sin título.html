@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Die Taube | Carta Interactiva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --crema: #fdfaf5; 
+            --rojo: #d32f2f;  
+            --amarillo: #ffc107; 
+            --texto: #2c2c2c;
+            --sombra: rgba(0,0,0,0.1);
+        }
+
+        /* --- 1. EFECTO DE CARGA (LOADER) --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--crema);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Siempre por encima de todo */
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+
+        .loader-icon {
+            font-size: 50px;
+            color: var(--rojo);
+            animation: latido 1.5s infinite ease-in-out;
+            margin-bottom: 20px;
+        }
+
+        @keyframes latido {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        /* --- 2. DISEÑO GENERAL --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            background-color: var(--crema);
+            background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png'); 
+            color: var(--texto);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px var(--sombra);
+            border-top: 4px solid var(--rojo);
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: var(--texto);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero {
+            height: 65vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        .hero-bg-text {
+            position: absolute;
+            font-family: 'Playfair Display', serif;
+            font-size: 10vw; 
+            color: rgba(0, 0, 0, 0.08); 
+            filter: blur(4px); 
+            white-space: nowrap;
+            z-index: 1;
+            font-weight: 700;
+        }
+
+        .text-1 { top: 15%; animation: moveRight 35s linear infinite; }
+        .text-2 { bottom: 15%; animation: moveLeft 40s linear infinite; color: rgba(211, 47, 47, 0.06); }
+
+        @keyframes moveRight { 0% { transform: translateX(-50%); } 100% { transform: translateX(50%); } }
+        @keyframes moveLeft { 0% { transform: translateX(50%); } 100% { transform: translateX(-50%); } }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 12vw, 7rem);
+            color: var(--texto);
+            z-index: 5;
+            position: relative;
+        }
+
+        .hero h1::after {
+            content: '';
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: var(--amarillo);
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .sobre-nosotros {
+            background: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--amarillo);
+        }
+
+        .sobre-nosotros h2 { font-family: 'Playfair Display'; margin: 0; color: var(--rojo); font-size: 2.2rem; }
+        .sobre-nosotros p { max-width: 850px; margin: 20px auto 0; font-size: 1rem; line-height: 1.8; color: #444; }
+
+        .seccion-selector { max-width: 900px; margin: 40px auto; padding: 0 15px; }
+
+        .bloque-apartado {
+            display: flex;
+            align-items: center;
+            background: white;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.4s;
+            box-shadow: 0 4px 12px var(--sombra);
+            border: 1px solid rgba(0,0,0,0.03);
+            width: 100%;
+            padding: 0;
+            text-align: left;
+        }
+
+        .bloque-apartado:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(211, 47, 47, 0.1); }
+        .bloque-apartado img { width: 40%; height: 160px; object-fit: cover; }
+        .bloque-info { width: 60%; padding: 20px; text-align: center; }
+        .bloque-info h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin: 0; color: var(--rojo); }
+
+        .menu-desplegable {
+            display: none;
+            max-width: 1000px;
+            margin: 0 auto 40px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .menu-desplegable.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .galeria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .galeria-grid img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--sombra);
+        }
+
+        .grid-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+        .item-carta {
+            background: white; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; font-size: 0.9rem; border-left: 4px solid var(--amarillo);
+        }
+
+        .alergenos-box {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #f1f1f1;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            border-left: 5px solid var(--amarillo);
+        }
+
+        .ubicacion { max-width: 1000px; margin: 60px auto; padding: 40px 15px; text-align: center; border-top: 1px dashed #ccc; }
+        .mapa { height: 350px; width: 100%; border-radius: 15px; border: 4px solid white; box-shadow: 0 5px 15px var(--sombra); margin-top: 20px; }
+
+        footer { background: #1a1a1a; color: #888; padding: 60px 20px; text-align: center; }
+        .footer-phone { font-size: 1.2rem; color: #ddd; margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold; }
+
+        .btn-flotante { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+        .btn-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+        @media (max-width: 600px) {
+            .bloque-apartado { flex-direction: column; }
+            .bloque-apartado img { width: 100%; height: 150px; }
+            .bloque-info { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-icon"><i class="fas fa-dove"></i></div>
+        <div class="loader-text" style="font-family: 'Playfair Display'; letter-spacing: 3px;">Die Taube</div>
+    </div>
+
+    <nav class="navbar">
+        <a href="#inicio">Inicio</a>
+        <a href="#bloques">Carta</a>
+        <a href="#ubicacion">Ubicación</a>
+    </nav>
+
+    <div class="btn-flotante">
+        <a href="tel:+34665128962" class="btn-circle" style="background:var(--rojo)"><i class="fas fa-phone fa-lg"></i></a>
+        <a href="https://wa.me/34665128962" class="btn-circle" style="background:#25d366"><i class="fab fa-whatsapp fa-lg"></i></a>
+    </div>
+
+    <header class="hero" id="inicio">
+        <div class="hero-bg-text text-1">DIE TAUBE • DIE TAUBE • DIE TAUBE</div>
+        <div class="hero-bg-text text-2">JAÉN • TRADICIÓN • JAÉN • TRADICIÓN</div>
+        <h1>Die Taube</h1>
+    </header>
+
+    <section class="sobre-nosotros">
+        <h2>Nuestra Esencia</h2>
+        <p>
+            Bienvenido a <strong>Die Taube</strong>, un rincón único en Jaén donde la pasión por la gastronomía local se encuentra con raíces orientales. Nuestro nombre refleja nuestra filosofía: ofrecer un refugio acogedor donde cada tapa cuenta una historia. Desde nuestras emblemáticas alpargatas hasta una cuidada selección de bebidas, cada detalle está pensado para que tu visita sea inolvidable en la Travesía Salvador Vicente de la Torre, 6.
+        </p>
+    </section>
+
+    <div class="seccion-selector" id="bloques">
+        <button class="bloque-apartado" onclick="abrir('fotos')">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=500">
+            <div class="bloque-info"><h3>Galería</h3><small>Nuestra cocina en imágenes</small></div>
+        </button>
+
+        <button class="bloque-apartado" onclick="abrir('tapas')">
+            <img src="https://images.unsplash.com/photo-1515467837915-15c477742fa1?auto=format&fit=crop&w=500">
+            <div class="bloque-info"><h3>Nuestras Tapas</h3><small>25 variedades gratuitas</small></div>
+        </button>
+
+        <button class="bloque-apartado" onclick="abrir('raciones')">
+            <img src="https://images.unsplash.com/photo-1534422298391-e4f8c170db06?auto=format&fit=crop&w=500">
+            <div class="bloque-info"><h3>Raciones</h3><small>Para compartir</small></div>
+        </button>
+
+        <button class="bloque-apartado" onclick="abrir('bocadillos')">
+            <img src="https://images.unsplash.com/photo-1509722747041-619f382b73b5?auto=format&fit=crop&w=500">
+            <div class="bloque-info"><h3>Bocadillos</h3><small>Clásicos y especiales</small></div>
+        </button>
+    </div>
+
+    <div id="fotos" class="menu-desplegable">
+        <h2 style="text-align:center; font-family:'Playfair Display'; color:var(--rojo);">Instantes Die Taube</h2>
+        <div class="galeria-grid">
+            <img src="https://images.unsplash.com/photo-1515467837915-15c477742fa1?auto=format&fit=crop&w=400">
+            <img src="https://images.unsplash.com/photo-1534422298391-e4f8c170db06?auto=format&fit=crop&w=400">
+            <img src="https://images.unsplash.com/photo-1509722747041-619f382b73b5?auto=format&fit=crop&w=400">
+            <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=400">
+            <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=400">
+            <img src="https://images.unsplash.com/photo-1563379091339-03b21bc4a4f8?auto=format&fit=crop&w=400">
+        </div>
+    </div>
+
+    <div id="tapas" class="menu-desplegable">
+        <p style="text-align:center; font-weight:600; color:var(--rojo)">⚠️ Máx. 2 tipos por ronda • Extra: 1,50€</p>
+        <div class="grid-items">
+            <div class="item-carta"><span>Alpargata de Jamón Asado</span><b>FREE</b></div>
+            <div class="item-carta"><span>Alpargata de Jamón Serrano</span><b>FREE</b></div>
+            <div class="item-carta"><span>Bacalao Frito</span><b>FREE</b></div>
+            <div class="item-carta"><span>Wan Tun Fritos</span><b>FREE</b></div>
+            <div class="item-carta"><span>Rollo de Primavera</span><b>FREE</b></div>
+            <div class="item-carta"><span>Boquerón Frito</span><b>FREE</b></div>
+            <div class="item-carta"><span>Rejos Fritos</span><b>FREE</b></div>
+            <div class="item-carta"><span>Arroz Tres Delicias</span><b>FREE</b></div>
+            <div class="item-carta"><span>Palomitas de Pollo</span><b>FREE</b></div>
+            <div class="item-carta"><span>Patata Rellena</span><b>FREE</b></div>
+            <div class="item-carta"><span>Croqueta / Chorizo Plancha</span><b>FREE</b></div>
+            <div class="item-carta"><span>Patatas Bravas / Ali-oli</span><b>FREE</b></div>
+            <div class="item-carta"><span>Huevo con Patatas</span><b>FREE</b></div>
+            <div class="item-carta"><span>Pinchito de Pollo</span><b>FREE</b></div>
+            <div class="item-carta"><span>Montadito de Jamón Serrano</span><b>FREE</b></div>
+            <div class="item-carta"><span>Montadito de Lomo y Pimientos</span><b>FREE</b></div>
+            <div class="item-carta"><span>Montadito de Bacón y Queso</span><b>FREE</b></div>
+            <div class="item-carta"><span>Perrito Caliente</span><b>FREE</b></div>
+            <div class="item-carta"><span>Alita de Pollo</span><b>FREE</b></div>
+            <div class="item-carta"><span>Callos</span><b>FREE</b></div>
+            <div class="item-carta"><span>Carne con Tomate</span><b>FREE</b></div>
+            <div class="item-carta"><span>Ensaladilla Rusa</span><b>FREE</b></div>
+            <div class="item-carta"><span>Jamón o Queso con Aceite</span><b>FREE</b></div>
+            <div class="item-carta"><span>Gazpacho (Verano)</span><b>FREE</b></div>
+        </div>
+    </div>
+
+    <div id="raciones" class="menu-desplegable">
+        <div class="grid-items">
+            <div class="item-carta"><span>Ensalada Mixta</span><b>6,00€</b></div>
+            <div class="item-carta"><span>Pincho Moruno (2 uds)</span><b>5,50€</b></div>
+            <div class="item-carta"><span>Bacalao Frito</span><b>10,50€</b></div>
+            <div class="item-carta"><span>Flamenquín Casero</span><b>6,50€</b></div>
+            <div class="item-carta"><span>San Jacobo</span><b>5,00€</b></div>
+            <div class="item-carta"><span>Solomillo Pimienta / Jerez</span><b>12,50€</b></div>
+            <div class="item-carta"><span>Gambas al Ajillo</span><b>11,00€</b></div>
+            <div class="item-carta"><span>Calamares / Rejos Fritos</span><b>10,50€</b></div>
+            <div class="item-carta"><span>Jamón Serrano / Queso</span><b>9,00€</b></div>
+            <div class="item-carta"><span>Rosca Especial</span><b>9,50€</b></div>
+            <div class="item-carta"><span>Boquerones Fritos</span><b>9,00€</b></div>
+            <div class="item-carta"><span>Croquetas Variadas</span><b>8,00€</b></div>
+            <div class="item-carta"><span>Tallarines / Udon Fritos</span><b>6,00€</b></div>
+            <div class="item-carta"><span>Empanadillas (10 uds)</span><b>8,50€</b></div>
+        </div>
+    </div>
+
+    <div id="bocadillos" class="menu-desplegable">
+        <div class="grid-items">
+            <div class="item-carta"><span>Serranito Especial</span><b>3,50€</b></div>
+            <div class="item-carta"><span>Lomo / Bacón / Tortilla</span><b>3,00€</b></div>
+            <div class="item-carta"><span>Hamburguesa Completa</span><b>3,50€</b></div>
+            <div class="item-carta"><span>Kebab de Pollo</span><b>3,00€</b></div>
+            <div class="item-carta"><span>Sandwich Mixto</span><b>3,00€</b></div>
+            <div class="item-carta"><span>Calamares Fritos</span><b>4,00€</b></div>
+            <div class="item-carta"><span>Lomo y Queso</span><b>3,50€</b></div>
+        </div>
+    </div>
+
+    <div class="alergenos-box">
+        <i class="fas fa-info-circle"></i> <strong>Información sobre Alérgenos:</strong> En cumplimiento del Reglamento (UE) Nº 1169/2011, disponemos de la información relativa a los alérgenos de nuestros platos. Por favor, consulte a nuestro personal si tiene alguna intolerancia.
+    </div>
+
+    <section class="ubicacion" id="ubicacion">
+        <h2 style="font-family:'Playfair Display'; color:var(--rojo)">Ubicación</h2>
+        <p>Tr.ª Salvador Vte. da la Torre, 6 • Jaén</p>
+        <iframe class="mapa" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3156.417!2d-3.79155!3d37.7687!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6dd70000000000%3A0x0000000000000000!2sTr.%20Salvador%20Vicente%20de%20la%20Torre%2C%206%2C%2023005%20Ja%C3%A9n!5e0!3m2!1ses!2ses!4v1715690000000!5m2!1ses!2ses" allowfullscreen="" loading="lazy"></iframe>
+    </section>
+
+    <footer>
+        <div class="footer-phone">
+            <i class="fas fa-phone-alt" style="color:var(--amarillo);"></i>
+            <span>665 12 89 62</span>
+        </div>
+        <p><strong>Die Taube Jaén</strong> • Tr.ª Salvador Vte. da la Torre, 6</p>
+        <p style="font-size:0.6rem; opacity:0.5; margin-top:20px;">DISEÑO Y FOTOGRAFÍA POR DARÍO HERNÁNDEZ VICO</p>
+    </footer>
+
+    <script>
+        // Esta función quita el cargador cuando la página ha cargado todo (imágenes, fuentes, etc.)
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loader');
+            // Le damos 1 segundo de margen para que se vea el efecto
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.visibility = 'hidden';
+                }, 800);
+            }, 1000);
+        });
+
+        function abrir(id) {
+            document.querySelectorAll('.menu-desplegable').forEach(m => m.classList.remove('active'));
+            const d = document.getElementById(id);
+            d.classList.add('active');
+            window.scrollTo({ top: d.offsetTop - 100, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
